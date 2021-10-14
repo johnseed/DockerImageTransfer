@@ -24,8 +24,8 @@ namespace X.Common.Helper
             };
 
             var process = Process.Start(processStartInfo);
-            process.WaitForExit();
-            process.Dispose();
+            process?.WaitForExit();
+            process?.Dispose();
         }
 
         /// <summary>
@@ -89,6 +89,7 @@ namespace X.Common.Helper
             process.Start();
         }
 
+        // https://stackoverflow.com/questions/40764172/how-asp-net-core-execute-linux-shell-command
         public static string Execute(string command, string args)
         {
             var process = new Process
