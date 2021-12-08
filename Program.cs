@@ -25,15 +25,16 @@ if (option == "s")
     foreach (var index in selected)
     {
         var image = images[index];
-        string name = $"{image.Repo}-{image.Tag}";
-        Console.WriteLine($"Exporting {image.Repo}:{image.Tag}");
-        CommandHelper.Execute("docker", $"save {image.Repo}:{image.Tag} -o {image.Repo}-{image.Tag}.tar");
-        Console.WriteLine($"Exported {image.Repo}:{image.Tag}. Compressing...");
-        string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 a -mx9 {name}.7z {name}.tar");
+        string name = $"{image.Repo}:{image.Tag}";
+        string fileName = $"{Path.GetFileName(image.Repo)}-{image.Tag}";
+        Console.WriteLine($"Exporting {name}");
+        CommandHelper.Execute("docker", $"save {name} -o {fileName}.tar");
+        Console.WriteLine($"Exported {name}. Compressing...");
+        string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 a -mx9 {fileName}.7z {fileName}.tar");
         Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
         Console.WriteLine(compressResult);
         Console.WriteLine("Compressed");
-        FileInfo file = new FileInfo($"{name}.tar");
+        FileInfo file = new FileInfo($"{fileName}.tar");
         if (file.Exists) file.Delete();
     }
 }
