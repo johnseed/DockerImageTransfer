@@ -30,7 +30,7 @@ if (option == "s")
         Console.WriteLine($"Exporting {name}");
         CommandHelper.Execute("docker", $"save {name} -o {fileName}.tar");
         Console.WriteLine($"Exported {name}. Compressing...");
-        string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 a -mx9 {fileName}.7z {fileName}.tar");
+        string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 a -mx9 -bsp1 {fileName}.7z {fileName}.tar");
         Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
         Console.WriteLine(compressResult);
         Console.WriteLine("Compressed");
@@ -45,7 +45,7 @@ else if (option == "l")
     Console.WriteLine("Extracting 7z files...");
     foreach (var sz in szs)
     {
-        string output = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 x {sz.Name} -y");
+        string output = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z:amd64 x -bsp1 {sz.Name} -y");
         Console.WriteLine(output);
     }
 
