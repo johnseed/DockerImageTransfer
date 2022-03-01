@@ -2,6 +2,7 @@
 
 using System.Text.RegularExpressions;
 using X.Common.Helper;
+// string imgTag = "";
 string imgTag = ":amd64";
 Console.WriteLine($"s: save images {Environment.NewLine}l: load images");
 string? option = Console.ReadLine();
