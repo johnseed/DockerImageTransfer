@@ -2,8 +2,10 @@
 
 using System.Text.RegularExpressions;
 using X.Common.Helper;
+using System.Runtime.InteropServices;
+
 // string imgTag = "";
-string imgTag = ":amd64";
+string imgTag = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? ":amd64" : string.Empty;
 Console.WriteLine($"s: save images {Environment.NewLine}l: load images");
 string? option = Console.ReadLine();
 if (option == "s")
