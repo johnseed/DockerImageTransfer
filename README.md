@@ -1,6 +1,6 @@
 # Docker image transfer
 
-Save and load images from the Docker.
+Save and load docker images in bulk.
 
 ### Publish
     $ dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained -p:PublishTrimmed=true -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true
