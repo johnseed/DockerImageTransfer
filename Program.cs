@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using X.Common.Helper;
 using System.Runtime.InteropServices;
 
-// string imgTag = "";
+bool compress = args.Length > 0 && args[0] == "compress";
 string imgTag = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? ":amd64" : string.Empty;
 Console.WriteLine($"s: save images {Environment.NewLine}l: load images");
 string? option = Console.ReadLine();
@@ -23,23 +23,28 @@ if (option == "s")
     Console.WriteLine("Select images to export, use space to seperate");
     string? input = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(input))
-        input = string.Join(" ", Enumerable.Range(0, images.Count).Select(x => x.ToString()));
+        input = string.Join(" ", Enumerable.Range(1, images.Count - 1).Select(x => x.ToString()));
     var selected = Regex.Split(input, @"\s+").Select(x => int.Parse(x)).ToArray();
-    foreach (var index in selected)
+    Parallel.ForEach(selected, index =>
+    // foreach (var index in selected)
     {
         var image = images[index];
         string name = $"{image.Repo}:{image.Tag}";
         string fileName = $"{Path.GetFileName(image.Repo)}-{image.Tag}";
         Console.WriteLine($"Exporting {name}");
         CommandHelper.Execute("docker", $"save {name} -o {fileName}.tar");
-        Console.WriteLine($"Exported {name}. Compressing...");
-        string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} a -mx9 -bsp1 {fileName}.7z {fileName}.tar");
-        Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-        Console.WriteLine(compressResult);
-        Console.WriteLine("Compressed");
-        FileInfo file = new FileInfo($"{fileName}.tar");
-        if (file.Exists) file.Delete();
-    }
+        if (compress)
+        {
+            Console.WriteLine($"Exported {name}. Compressing...");
+            string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} a -mx9 -bsp1 -sdel {fileName}.7z {fileName}.tar");
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            Console.WriteLine(compressResult);
+            Console.WriteLine("Compressed");
+        }
+        else
+            Console.WriteLine($"Exported {name}. ");
+    });
+
 }
 else if (option == "l")
 {
@@ -61,7 +66,7 @@ else if (option == "l")
     }
     Console.WriteLine("Delete tar files? Y/n");
     string? deleteTarInput = Console.ReadLine();
-    if(deleteTarInput != "n" || deleteTarInput != "N")
+    if (deleteTarInput != "n" || deleteTarInput != "N")
         foreach (var tar in tars)
             tar.Delete();
 }
