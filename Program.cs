@@ -5,6 +5,7 @@ using X.Common.Helper;
 using System.Runtime.InteropServices;
 
 bool compress = args.Length > 0 && args[0] == "compress";
+bool useBinary = true; // now we have 7zzs static compiled binary
 string imgTag = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? ":amd64" : string.Empty;
 Console.WriteLine($"s: save images {Environment.NewLine}l: load images");
 string? option = Console.ReadLine();
@@ -36,7 +37,10 @@ if (option == "s")
         if (compress)
         {
             Console.WriteLine($"Exported {name}. Compressing...");
-            string compressResult = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} a -mx9 -bsp1 -sdel {fileName}.7z {fileName}.tar");
+            string compressResult = useBinary ? 
+                CommandHelper.Execute("7zzs", $" a -mx9 -bsp1 -sdel {fileName}.7z {fileName}.tar") 
+                :
+                CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} a -mx9 -bsp1 -sdel {fileName}.7z {fileName}.tar");
             Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             Console.WriteLine(compressResult);
             Console.WriteLine("Compressed");
@@ -53,7 +57,10 @@ else if (option == "l")
     Console.WriteLine("Extracting 7z files...");
     foreach (var sz in szs)
     {
-        string output = CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} x -bsp1 {sz.Name} -y");
+        string output = useBinary ? 
+            CommandHelper.Execute("7zzs", $" x -bsp1 {sz.Name} -y")
+            :
+            CommandHelper.Execute("docker", $"run --rm -v {Environment.CurrentDirectory}:/app 7z{imgTag} x -bsp1 {sz.Name} -y");
         Console.WriteLine(output);
     }
 
